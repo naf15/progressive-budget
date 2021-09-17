@@ -7,34 +7,28 @@ const FILES_TO_CACHE = [
     "/manifest.webmanifest",
     "/db.js",
     "/icons/icon-192x192.png",
-    "/icons/icon-512x512.png",
+    "/icons/icon-512x512.png"
   ];
   
   const CACHE_NAME = "static-cache-v2";
   const DATA_CACHE_NAME = "data-cache-v1";
   
-  // install
-  self.addEventListener("install", function(evt) {
-    evt.waitUntil(
-      caches.open(CACHE_NAME).then(cache => {
-        console.log("Your files were pre-cached successfully!");
-        return cache.addAll(FILES_TO_CACHE);
-      })
-    );
+// install
+self.addEventListener("install", function (evt) {
+  // pre cache image data
+  evt.waitUntil(
+    caches.open(DATA_CACHE_NAME).then((cache) => cache.add('/api/transaction'))
+  );
+    
+  // pre cache all static assets
+  evt.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(FILES_TO_CACHE))
+  );
 
-       // evt.waitUntil(
-    //     caches.open(CACHE_NAME).then((cache) => cache.addAll(FILES_TO_CACHE))
-    // );
-
-    evt.waitUntil(
-        caches.open(DATA_CACHE_NAME).then((cache) => {
-            return cache.add('/api/transaction')
-        })
-    );
- 
-  
-    self.skipWaiting();
-  });
+  // tell the browser to activate this service worker immediately once it
+  // has finished installing
+  self.skipWaiting();
+});
   
   self.addEventListener("activate", function(evt) {
     evt.waitUntil(
